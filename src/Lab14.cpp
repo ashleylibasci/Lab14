@@ -8,6 +8,7 @@
 #include <Wire.h>
 
 void incrementCounter();
+void toggleInterrupts();
 void setup();
 void loop();
 #line 5 "/Users/ashleylibasci/IoTFolderLabs/Lab14/src/Lab14.ino"
@@ -20,11 +21,28 @@ OledWingAdafruit display;
 
 volatile int counter = 0;
 volatile bool buttonPressed = false;
+bool interruptsEnabled = true;
 
 void incrementCounter()
 {
-  counter++;
-  buttonPressed = true;
+  if (interruptsEnabled)
+  {
+    counter++;
+    buttonPressed = true;
+  }
+}
+
+void toggleInterrupts()
+{
+  interruptsEnabled = !interruptsEnabled;
+  if (interruptsEnabled)
+  {
+    attachInterrupt(yellowCounter, incrementCounter, FALLING);
+  }
+  else
+  {
+    detachInterrupt(yellowCounter);
+  }
 }
 
 void setup()
@@ -37,6 +55,7 @@ void setup()
   pinMode(greenInterrupt, INPUT_PULLUP);
 
   attachInterrupt(yellowCounter, incrementCounter, FALLING);
+  attachInterrupt(greenInterrupt, toggleInterrupts, RISING);
 }
 
 void loop()
@@ -45,7 +64,7 @@ void loop()
 
   if (buttonPressed)
   {
-    delay(100); // Debounce time
+    delay(100);
     buttonPressed = false;
 
     display.clearDisplay();
