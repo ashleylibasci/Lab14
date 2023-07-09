@@ -11,7 +11,7 @@ OledWingAdafruit display;
 
 volatile int counter = 0;
 volatile bool buttonPressed = false;
-bool interruptsEnabled = true;
+volatile bool interruptsEnabled = true;
 
 void incrementCounter()
 {
@@ -22,16 +22,17 @@ void incrementCounter()
   }
 }
 
-void toggleInterrupts()
+void toggleInterruptsState()
 {
-  interruptsEnabled = !interruptsEnabled;
   if (interruptsEnabled)
   {
-    attachInterrupt(yellowCounter, incrementCounter, FALLING);
+    detachInterrupt(yellowCounter);
+    interruptsEnabled = false;
   }
   else
   {
-    detachInterrupt(yellowCounter);
+    attachInterrupt(yellowCounter, incrementCounter, FALLING);
+    interruptsEnabled = true;
   }
 }
 
@@ -45,7 +46,7 @@ void setup()
   pinMode(greenInterrupt, INPUT_PULLUP);
 
   attachInterrupt(yellowCounter, incrementCounter, FALLING);
-  attachInterrupt(greenInterrupt, toggleInterrupts, RISING);
+  attachInterrupt(greenInterrupt, toggleInterruptsState, FALLING);
 }
 
 void loop()
